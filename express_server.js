@@ -45,7 +45,6 @@ app.get("/urls/new", (req, res) => {
 /********************************************************************************************************** */
 app.get("/urls", (req, res) => {
   const isLoggedIn = req.cookies.email ? true : false
-  console.log(req.cookies);
   const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
   res.render("urls_index", templateVars, isLoggedIn);
 });
@@ -63,7 +62,6 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  console.log(req.params);
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
@@ -89,6 +87,11 @@ app.post('/logout', (req, res) => {
   res.clearCookie('username');
   res.redirect('/urls');
 })
+
+app.get('/register', (req, res) => {
+  res.render('urls_register');
+})
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
