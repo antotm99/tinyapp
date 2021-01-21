@@ -6,23 +6,22 @@
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <title>Document</title>
-
 </head>
 <body>
   <%- include('partials/_header') %>
 
   <main style="margin: 1em;">
-  <h1>Create Account</h1>
+  <h1>Login</h1>
   <h6>Email Address</h6>
-  <form action="/register" method="POST">
-    <input type="email" name="email" placeholder="Enter email">
+  <form method="POST" action="/login">
+    <input type="email" name="email" placeholder="Your email">
     <br>
     <br>
     <h6>Password</h6>
     <input type="password" name="password" placeholder="Your password">
     <br>
     <br>
-    <button type="submit" class="btn btn-primary">Register</button>
+    <button type="submit" class="btn btn-primary">Login</button>
   </form>
 </main>
 <!-- Bootstrap JS -->
