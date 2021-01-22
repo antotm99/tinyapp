@@ -168,7 +168,7 @@ app.post('/login', (req, res) => {
   } else if (!submittedEmail || !submittedPassword) {
 
     res.redirect(403, '/login');
-    //If the email and password match, the password will be bcrypted to equal to the saved password in our database
+    //If the email and password match, the password entered will be bcrypted to equal to the saved password in our database
   } else {
     const user = getUserByEmail(submittedEmail, users);
     const salt = bcrypt.genSaltSync(saltRounds);
