@@ -19,6 +19,7 @@ app.set("view engine", "ejs");
 
 /********************************************************************************************************** */
 
+//Generate a random 6 character string
 const generateRandomString = function() {
   let randomString = Math.random().toString(36).substring(2,8);
   return randomString;
@@ -48,7 +49,7 @@ const users = {
 /********************************************************************************************************** */
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.send("Welcome!");
 });
 
 app.get("/urls.json", (req, res) => {
@@ -59,12 +60,15 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+
 app.get("/urls/new", (req, res) => {
+  //If one of our cookies is equal to a user, show the '/urls/new' page
   if (cookieHasUser(req.session.user_id, users)) {
     let templateVars = {
       user: users[req.session.user_id],
     };
     res.render("urls_new", templateVars);
+    //If we are not logged in, then send them back to the login page
   } else {
     res.redirect("/login");
   }
@@ -73,6 +77,8 @@ app.get("/urls/new", (req, res) => {
 /********************************************************************************************************** */
 
 app.get("/urls", (req, res) => {
+  //You don't need to be logged in to see the front page, 
+  //but you don't see any URLs since your not logged in
   let templateVars = {
     urls: urlsForUser(req.session.user_id, urlDatabase),
     user: users[req.session.user_id],
@@ -82,7 +88,7 @@ app.get("/urls", (req, res) => {
 
 
 app.post("/urls", (req, res) => {
-  //console.log(req.session.user_id);
+  //Will show URLs of the user on this page if you are logged in
   if (req.session.user_id) {
     const shortURL = generateRandomString();
     urlDatabase[shortURL] = {
@@ -98,6 +104,7 @@ app.post("/urls", (req, res) => {
 /********************************************************************************************************** */
 
 app.get("/urls/:shortURL", (req, res) => {
+  //If the short URL you entered is in the database under the users account it will show you this page with the Short URL
   if (urlDatabase[req.params.shortURL]) {
     let templateVars = {
       shortURL: req.params.shortURL,
@@ -106,8 +113,9 @@ app.get("/urls/:shortURL", (req, res) => {
       user: users[req.session.user_id],
     };
     res.render("urls_show", templateVars);
+    //If you enter a wrong Short URL this error message will come up
   } else {
-    res.status(404).send("The short URL you entered does not correspond with a long URL at this time.");
+    res.status(404).send("The short URL you entered does not match with a long URL.");
   }
 });
 
@@ -148,16 +156,19 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
+  //Entered email
   const submittedEmail = req.body.email;
+  //Entered password
   const submittedPassword = req.body.password;
-
+  //If Email is not in our users database you will get an error
   if (!emailLookUp(submittedEmail, users)) {
 
     res.status(403).send('Invalid request');
-
+  //If either the email or password does not match you will be redirected to the Login page
   } else if (!submittedEmail || !submittedPassword) {
 
     res.redirect(403, '/login');
+    //If the email and password match, the password will be bcrypted to equal to the saved password in our database
   } else {
     const user = getUserByEmail(submittedEmail, users);
     const salt = bcrypt.genSaltSync(saltRounds);
@@ -174,14 +185,14 @@ app.post('/login', (req, res) => {
 });
 
 /********************************************************************************************************** */
-
+//Logout will clear the cookies for that session and redirect you to the '/urls' page
 app.post('/logout', (req, res) => {
   req.session['user_id'] = null;
   res.redirect('/urls');
 });
 
 /********************************************************************************************************** */
-
+//Registration page
 app.get('/register', (req, res) => {
   if (cookieHasUser(req.session.user_id, users)) {
     res.redirect("/urls");
@@ -194,13 +205,18 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
+  //Entered email
   const submittedEmail = req.body.email;
+  //Entered password
   const submittedPassword = req.body.password;
-
+  //If the email or password are not valid, it will give you an error
   if (!submittedEmail || !submittedPassword) {
-    res.status(400).send("Please include both a valid email and password");
+    res.status(400).send("Please include a valid email and password");
+    //If the email is in our users database, then you will get an error
   } else if (emailLookUp(submittedEmail, users)) {
     res.status(400).send("An account already exists for this email address");
+    //If both email and password are valid, it will generate a random 6 character string for the user cookie
+    //and it will bcrypt the password and save it bcrypted in our database for security
   } else {
     const newUserID = generateRandomString();
     users[newUserID] = {
@@ -216,17 +232,6 @@ app.post('/register', (req, res) => {
 
 /********************************************************************************************************** */
 
-app.post("/urls/:id", (req, res) => {
-  const userID = req.session.user_id;
-  const userUrls = urlsForUser(userID, urlDatabase);
-  if (Object.keys(userUrls).includes(req.params.id)) {
-    const shortURL = req.params.id;
-    urlDatabase[shortURL].longURL = req.body.newURL;
-    res.redirect('/urls');
-  } else {
-    res.status(401).send("You don't have authorization to edit this short URL.");
-  }
-});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
