@@ -21,7 +21,7 @@
           <div class="alert alert-warning" role="alert">
             This link is not your URL.
         </div>
-        <% } %>
+        <% } else { %>
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
       </div>
@@ -30,6 +30,7 @@
           New URL: <input type="text" name="longURL">
           <input type="submit">
         </form>
+        <% } %>
     </div>
   </div>
   <!-- Bootstrap JS -->
