@@ -120,7 +120,10 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  if (!urlDatabase.hasOwnProperty(req.params.shortURL)) {
+    return res.status(400).send("Page doesn't exist");
+  }
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -137,9 +140,15 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post('/urls/:id', (req, res) => {
-  const shortURL = req.params.id;
-  urlDatabase[shortURL].longURL = req.body.longURL;
-  res.redirect('/urls');
+  const userID = req.session.user_id;
+  const userUrls = urlsForUser(userID, urlDatabase);
+  if (Object.keys(userUrls).includes(req.params.id)) {
+    const shortURL = req.params.id;
+    urlDatabase[shortURL].longURL = req.body.newURL;
+    res.redirect('/urls');
+  } else {
+    res.status(401).send("You do not have authorization to edit this short URL.");
+  }
 });
 
 /********************************************************************************************************** */
