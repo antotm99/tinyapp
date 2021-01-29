@@ -50,6 +50,7 @@ const users = {
 
 app.get("/", (req, res) => {
   res.send("Welcome!");
+  res.redirect("/urls");
 });
 
 app.get("/urls.json", (req, res) => {
